@@ -1,0 +1,256 @@
+---
+openapi: 3.0.1
+info:
+  title: Todo API
+  version: v1
+  description: REST API για διαχείριση todos και todo items
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+paths:
+  "/signup":
+    post:
+      summary: Εγγραφή νέου χρήστη
+      tags:
+      - Authentication
+      parameters: []
+      responses:
+        '201':
+          description: Χρήστης δημιουργήθηκε
+        '422':
+          description: Μη έγκυρα στοιχεία
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: user@example.com
+                password:
+                  type: string
+                  example: '123456'
+              required:
+              - email
+              - password
+  "/auth/login":
+    post:
+      summary: Σύνδεση χρήστη
+      tags:
+      - Authentication
+      parameters: []
+      responses:
+        '200':
+          description: Επιτυχής σύνδεση
+        '401':
+          description: Λάθος στοιχεία
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: user@example.com
+                password:
+                  type: string
+                  example: '123456'
+              required:
+              - email
+              - password
+  "/auth/logout":
+    get:
+      summary: Αποσύνδεση χρήστη
+      tags:
+      - Authentication
+      responses:
+        '200':
+          description: Επιτυχής αποσύνδεση
+  "/todos":
+    get:
+      summary: Λίστα όλων των todos
+      tags:
+      - Todos
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: Επιτυχής ανάκτηση
+        '401':
+          description: Μη εξουσιοδοτημένος
+    post:
+      summary: Δημιουργία νέου todo
+      tags:
+      - Todos
+      security:
+      - bearerAuth: []
+      parameters: []
+      responses:
+        '201':
+          description: Todo δημιουργήθηκε
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                todo:
+                  type: object
+                  properties:
+                    title:
+                      type: string
+                      example: My Todo
+                    description:
+                      type: string
+                      example: My Description
+                  required:
+                  - title
+  "/todos/{id}":
+    parameters:
+    - name: id
+      in: path
+      description: ID του todo
+      required: true
+      schema:
+        type: integer
+    get:
+      summary: Ανάκτηση συγκεκριμένου todo
+      tags:
+      - Todos
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: Επιτυχής ανάκτηση
+        '404':
+          description: Δεν βρέθηκε
+    put:
+      summary: Ενημέρωση todo
+      tags:
+      - Todos
+      security:
+      - bearerAuth: []
+      parameters: []
+      responses:
+        '200':
+          description: Todo ενημερώθηκε
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                todo:
+                  type: object
+                  properties:
+                    title:
+                      type: string
+                    description:
+                      type: string
+    delete:
+      summary: Διαγραφή todo
+      tags:
+      - Todos
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: Todo διαγράφηκε
+  "/todos/{id}/items":
+    parameters:
+    - name: id
+      in: path
+      description: ID του todo
+      required: true
+      schema:
+        type: integer
+    post:
+      summary: Δημιουργία νέου todo item
+      tags:
+      - Todo Items
+      security:
+      - bearerAuth: []
+      parameters: []
+      responses:
+        '201':
+          description: Item δημιουργήθηκε
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                todo_item:
+                  type: object
+                  properties:
+                    content:
+                      type: string
+                      example: My item
+                    completed:
+                      type: boolean
+                      example: false
+                  required:
+                  - content
+  "/todos/{id}/items/{iid}":
+    parameters:
+    - name: id
+      in: path
+      description: ID του todo
+      required: true
+      schema:
+        type: integer
+    - name: iid
+      in: path
+      description: ID του todo item
+      required: true
+      schema:
+        type: integer
+    get:
+      summary: Ανάκτηση συγκεκριμένου todo item
+      tags:
+      - Todo Items
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: Επιτυχής ανάκτηση
+    put:
+      summary: Ενημέρωση todo item
+      tags:
+      - Todo Items
+      security:
+      - bearerAuth: []
+      parameters: []
+      responses:
+        '200':
+          description: Item ενημερώθηκε
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                todo_item:
+                  type: object
+                  properties:
+                    content:
+                      type: string
+                    completed:
+                      type: boolean
+    delete:
+      summary: Διαγραφή todo item
+      tags:
+      - Todo Items
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: Item διαγράφηκε
+servers:
+- url: http://localhost:3000
+  description: Development server
